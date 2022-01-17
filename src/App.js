@@ -15,22 +15,22 @@ import Web3 from 'web3';
 
 function App() {
   const [account, setAccount] = useState()
-  const [ethereum, setEthereum] = useState()
+  const [balance, setBalance] = useState()
   const [web3, setWeb3] = useState()
-  const [network, setNetwork] = useState('Checking Network...')
+  const [chainId, setChainId] = useState(0)
   const theme = createTheme()
 
   const networksTypes = {
-    1: 'Ethereum Mainnet',
-    3: 'Ropsten Testnet',
-    4: 'Rinkeby Testnet',
-    42: 'Kovan Testnet',
-    56: 'Binance Mainnet',
-    97: 'Binance Testnet',
-    137: 'Matic Mainnet',
-    250: 'Fantom Opera',
-    4002: 'Fantom Testnet',
-    80001: 'Polygon Testnet'
+    1: ['Ethereum Mainnet', 'ETH'],
+    3: ['Ropsten Testnet', 'ETH'],
+    4: ['Rinkeby Testnet', 'ETH'],
+    42: ['Kovan Testnet', 'ETH'],
+    56: ['Binance Mainnet', 'BNB'],
+    97: ['Binance Testnet', 'BNB'],
+    137: ['Matic Mainnet', 'MATIC'],
+    250: ['Fantom Opera', 'FTM'],
+    4002: ['Fantom Testnet', 'FTM'],
+    80001: ['Polygon Testnet', 'MATIC']
   }
 
   const connectWallet = async() => {
@@ -44,7 +44,9 @@ function App() {
           return
       }
       const _account = await _web3.eth.getAccounts()
+      const _balance = _web3.utils.fromWei(await _web3.eth.getBalance(_account[0]), 'ether')
       setAccount(_account[0])
+      setBalance(`${Number(_balance).toFixed(3)} ${networksTypes[chainId][1]}`)
     } else {
       console.log("Please install metamask")
     }
@@ -54,27 +56,19 @@ function App() {
     if (typeof window !== 'undefined' && typeof window.web3 !== 'undefined') {
       const _web3 = new Web3(window.web3.currentProvider)
       const chainId = await _web3.eth.getChainId()
-      if(networksTypes[chainId]) {
-        setNetwork(networksTypes[chainId])
-      } else {
-        setNetwork('Custom Network')
-      }
+      setChainId(chainId)
     } else {
       console.log("Please install metamask")
     }
   }
 
   React.useEffect(() => {
-    checkNetwork()
-  }, [])
+    checkNetwork(chainId)
+  }, [chainId])
 
   window.ethereum.on('chainChanged', (chainId) => {
     const dexChainId = parseInt(chainId).toString(10)
-    if(networksTypes[dexChainId]) {
-      setNetwork(networksTypes[dexChainId])
-    } else {
-      setNetwork('Custom Network')
-    }
+    setChainId(dexChainId)
   })
 
   const filterAddress = (address) => {
@@ -102,18 +96,12 @@ function App() {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
-            <IconButton
-              size="large"
-              edge="start"
-              color="inherit"
-              aria-label="menu"
-              sx={{ mr: 2 }}
-            >
-              <MenuIcon />
-            </IconButton>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              {network}
+              {networksTypes[chainId] ? networksTypes[chainId][0] : 'Custom Network'}
             </Typography>
+            { account && <Button color="primary" variant="contained" disabled='true' style={{marginRight:'10px'}} onClick={() => connectWallet()}>
+              {balance}
+            </Button>}
             <Button color="secondary" variant="contained" onClick={() => connectWallet()}>
               { account ? filterAddress(account) : 'Connect Wallet' }
             </Button>
