@@ -17,7 +17,6 @@ function App() {
   const [balance, setBalance] = useState()
   const [web3, setWeb3] = useState()
   const [chainId, setChainId] = useState(0)
-  const [password, setPassword] = useState('awesome_encrypt')
   const [decrypt, setDecrypt] = useState('')
   const theme = createTheme()
 
@@ -87,7 +86,7 @@ function App() {
     const algorithm = 'aes-128-cbc'
     const secretKey = crypto.randomBytes(32)
     const iv = crypto.randomBytes(16)
-    const cipher = crypto.createCipheriv(algorithm, createHashPassword(password, secretKey), iv)
+    const cipher = crypto.createCipheriv(algorithm, createHashPassword(data.get('password'), secretKey), iv)
     const encrypted = Buffer.concat([cipher.update(data.get('message')), cipher.final()])
     const res = secretKey.toString('hex') + iv.toString('hex') + encrypted.toString('hex')
 
@@ -116,7 +115,7 @@ function App() {
     const secretKey = fromHexString(res.slice(2,66))
     const iv = fromHexString(res.slice(66, 98))
     const encrypted = fromHexString(res.slice(98, cnt))
-    const decipher = crypto.createDecipheriv(algorithm, Buffer.from(createHashPassword(password, secretKey)), iv)
+    const decipher = crypto.createDecipheriv(algorithm, Buffer.from(createHashPassword(data.get('password'), secretKey)), iv)
     const decrypted = Buffer.concat([decipher.update(new Buffer(encrypted)), decipher.final()]);
     setDecrypt(decrypted.toString())
   }
@@ -173,6 +172,13 @@ function App() {
                   margin="normal"
                   required
                   fullWidth
+                  name="password"
+                  label="Password for Encrypt"
+                />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
                   name="amount"
                   type="number"
                   label="Amount Of Eth To Send"
@@ -201,6 +207,13 @@ function App() {
                   label="Received Transaction Data"
                   name="transaction"
                   autoFocus
+                />
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password for Decrypt"
                 />
                 <TextField
                   margin="normal"
