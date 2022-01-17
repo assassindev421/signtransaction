@@ -99,7 +99,7 @@ function App() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               {networksTypes[chainId] ? networksTypes[chainId][0] : 'Custom Network'}
             </Typography>
-            { account && <Button color="primary" variant="contained" disabled='true' style={{marginRight:'10px'}} onClick={() => connectWallet()}>
+            { account && <Button color="primary" variant="contained" disabled={true} style={{marginRight:'10px'}} onClick={() => connectWallet()}>
               {balance}
             </Button>}
             <Button color="secondary" variant="contained" onClick={() => connectWallet()}>
